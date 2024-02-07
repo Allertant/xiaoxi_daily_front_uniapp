@@ -106,7 +106,7 @@
 			},
 			jumpToLogin() {
 				uni.navigateTo({
-					url: '/subpkg/login/login'
+					url: '/pages/login/login'
 				})
 			},
 			gotoHistory() {
@@ -121,6 +121,14 @@
 		onShow() {
 			this.getList()
 			this.getTimeStr()
+		},
+		onLoad() {
+			console.log(this.userId)
+			console.log("hello")
+			if(this.userId == "") {
+				console.log(this.userId)
+				this.jumpToLogin()
+			}
 		}
 	}
 </script>
