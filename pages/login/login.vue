@@ -17,19 +17,10 @@
 			
 			<!-- 登录框 -->
 			<view class="login-box" v-if='select==1'>
-				<uni-forms ref="baseForm" :modelValue="baseFormData" label-position="top">
-					<uni-forms-item label="用户名" name="name">
-						<uni-easyinput type="text" v-model="baseFormData.name" placeholder="请输入姓名" />
-					</uni-forms-item>
-					<uni-forms-item label="密码" name="password">
-						<uni-easyinput type="password" v-model="baseFormData.password" placeholder="请输入密码" />
-					</uni-forms-item>
-					<uni-forms-item label="验证码" name="vcode">
-						<img @click='getCodePic' :src="vcode" alt="">
-						<uni-easyinput type="text" v-model="baseFormData.vcode" placeholder="请输入验证码" />
-					</uni-forms-item>
-				</uni-forms>
-				<button type="primary" @click="login">登录</button>
+				<my-login :vcode="vcode"
+				:login='login'
+				:baseFormData='baseFormData'
+				:getCodePic='getCodePic' />
 			</view>
 			
 			<!-- 注册框 -->
@@ -64,9 +55,8 @@
 				        }
 				      ],
 				baseFormData: {
-					name: '',
-					password: '',
-					vcode: ''
+					phoneOrUsername: '',
+					password: ''
 				}
 			};
 		},
@@ -75,15 +65,29 @@
 		},
 		methods: {
 			...mapMutations("m_user", ['changeUserName', 'changeUserId', 'removeUser', 'changeJWT']),
-			async login() {
-				if(!this.baseFormData.name || !this.baseFormData.password || !this.baseFormData.vcode) 
-					return uni.$showMsg("请输入用户名或密码")
+			async login(form) {
+				if(!form.phoneOrUsername) return uni.$showMsg('请输入用户名或手机号')
+				if(!form.password) return uni.$showMsg('请输入密码')
+				if(!form.vcode) return uni.$showMsg('请输入验证码')
+				
+				// 判断phoneOrUsername是用户名还是手机号
+				var reg_tel = /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/;
+				let loginData = {}
+				loginData.password = form.password
+				loginData.vcode = form.vcode
+				if(reg_tel.test(form.phoneOrUsername)) {
+					// 是手机号
+					loginData.phone = form.phoneOrUsername
+					loginData.isPhone = true
+				}else {
+					// 是用户名
+					loginData.username = form.phoneOrUsername
+					loginData.isPhone = false
+				}
 				
 				// 发送请求
 				const {data: res} = await uni.$http.post('/user/login', 
-					{username: this.baseFormData.name, 
-					password: this.baseFormData.password,
-					vcode: this.baseFormData.vcode},
+					loginData,
 				)
 				uni.$showMsg(res.msg)
 				if(res.code === 1) {
@@ -93,6 +97,8 @@
 					// 本地存储密码
 					uni.setStorageSync("name", this.baseFormData.name)
 					uni.setStorageSync("password", this.baseFormData.password)
+					// 跳转到主页
+					this.gotoIndex()
 				}
 				
 			},
@@ -114,8 +120,10 @@
 					this.changeUserName(res.userName)
 					this.changeJWT(res.jwt)
 					// 本地存储密码
-					uni.setStorageSync("name", this.baseFormData.name)
-					uni.setStorageSync("password", this.baseFormData.password)
+					uni.setStorageSync("name", form.name)
+					uni.setStorageSync("password", form.password)
+					// 跳转到主页
+					this.gotoIndex()
 				}
 				
 			},
@@ -132,11 +140,16 @@
 				if(res.code == 1) {
 					this.vcode = res.data
 				}
+			},
+			gotoIndex() {
+				uni.navigateTo({
+					url: '/pages/index/index'
+				})
 			}
 		},
 		onShow() {
 			// 加载本地的密码数据
-			this.baseFormData.name = uni.getStorageSync("name") || ""
+			this.baseFormData.phoneOrUsername = uni.getStorageSync("name") || ""
 			this.baseFormData.password = uni.getStorageSync("password") || ""
 			// 加载验证码图片数据
 			this.getCodePic()
