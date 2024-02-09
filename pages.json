@@ -12,6 +12,14 @@
 			"style" :{
 				"navigationStyle": "custom"
 				}
+			},
+			{
+				"path" : "components/my-register/my-register",
+				"style" : 
+				{
+					"navigationBarTitleText" : "",
+					"enablePullDownRefresh" : false
+				}
 			}
     ],
 	"subPackages": [
