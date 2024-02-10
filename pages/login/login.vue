@@ -19,7 +19,7 @@
 			<view class="login-box" v-if='select==1'>
 				<my-login :vcode="vcode"
 				:login='login'
-				:baseFormData='baseFormData'
+				:defaultData='defaultData'
 				:getCodePic='getCodePic' />
 			</view>
 			
@@ -54,7 +54,7 @@
 				          name: "注册",
 				        }
 				      ],
-				baseFormData: {
+				defaultData: {
 					phoneOrUsername: '',
 					password: ''
 				}
@@ -72,6 +72,8 @@
 				
 				// 判断phoneOrUsername是用户名还是手机号
 				var reg_tel = /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/;
+				
+				// 准备登录数据dto
 				let loginData = {}
 				loginData.password = form.password
 				loginData.vcode = form.vcode
@@ -90,24 +92,21 @@
 					loginData,
 				)
 				uni.$showMsg(res.msg)
+				
+				// 注册成功后，保存相关信息
 				if(res.code === 1) {
-					this.changeUserId(res.userId)
-					this.changeUserName(res.userName)
-					this.changeJWT(res.jwt)
-					// 本地存储密码
-					uni.setStorageSync("name", this.baseFormData.name)
-					uni.setStorageSync("password", this.baseFormData.password)
-					// 跳转到主页
-					this.gotoIndex()
+					this.saveInfoToLocale(res, loginData, loginData.isPhone)
 				}
 				
 			},
 			async register(form) {
+				// 校验数据框是否为空
 				if(!form.phone) return uni.$showMsg("请输入手机号")
 				if(!form.password) return uni.$showMsg("请输入密码")
 				if(!form.passwordRep) return uni.$showMsg("请重复密码")
 				if(!form.vcode) return uni.$showMsg("请输入验证码")
 				if(form.password != form.passwordRep) return uni.$showMsg("密码不一致")
+				
 				// 发送请求
 				const {data: res} = await uni.$http.post('/user/register', 
 					{phone: form.phone, 
@@ -115,17 +114,29 @@
 					vcode: form.vcode},
 				)
 				uni.$showMsg(res.msg)
+				
+				// 登录成功后，保存信息
 				if(res.code === 1) {
-					this.changeUserId(res.userId)
-					this.changeUserName(res.userName)
-					this.changeJWT(res.jwt)
-					// 本地存储密码
-					uni.setStorageSync("name", form.name)
-					uni.setStorageSync("password", form.password)
-					// 跳转到主页
-					this.gotoIndex()
+					this.saveInfoToLocale(res, form, true)
 				}
 				
+			},
+			saveInfoToLocale(res, form, isPhone) {
+				// 保存用户id、用户姓名和jwt字符串
+				this.changeUserId(res.userId)
+				this.changeUserName(res.userName)
+				this.changeJWT(res.jwt)
+				
+				// 本地存储用户名和密码
+				if(isPhone) {
+					uni.setStorageSync("phoneOrUsername", form.phone)
+				}else {
+					uni.setStorageSync("phoneOrUsername", form.username)
+				}
+				uni.setStorageSync("password", form.password)
+				
+				// 跳转到主页
+				this.gotoIndex()
 			},
 			logout() {
 				this.removeUser()
@@ -149,8 +160,8 @@
 		},
 		onShow() {
 			// 加载本地的密码数据
-			this.baseFormData.phoneOrUsername = uni.getStorageSync("name") || ""
-			this.baseFormData.password = uni.getStorageSync("password") || ""
+			this.defaultData.phoneOrUsername = uni.getStorageSync("phoneOrUsername") || ""
+			this.defaultData.password = uni.getStorageSync("password") || ""
 			// 加载验证码图片数据
 			this.getCodePic()
 		}
@@ -167,7 +178,7 @@
 			color: white;
 			padding: 20rpx;
 			border-radius: 10px;
-	}
+		}
 		.selector-default {
 			background-color: white;
 			padding: 20rpx;
@@ -178,10 +189,10 @@
 	.login-container {
 		position: absolute;
 		width: 70%;
-		top: 20%;
+		top: 10%;
 		left: 10%;
 		padding: 30rpx;
-		border: 1px solid black;
+		// border: 1px solid black;
 	}
 	// 注册盒子和登录盒子的相关样式
 	.login-box,.register-box {

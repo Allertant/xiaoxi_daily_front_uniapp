@@ -32,7 +32,7 @@
 				type: Function,
 				required: true	
 			},
-			baseFormData: {
+			defaultData: {
 				type: Object,
 				required: false
 			}
@@ -46,6 +46,12 @@
 				}
 			};
 		},
+		mounted() {
+			// console.log('defaultData',this.defaultData)
+			this.baseFormData.phoneOrUsername = this.defaultData.phoneOrUsername
+			this.baseFormData.password = this.defaultData.password
+		}
+
 	}
 </script>
 
