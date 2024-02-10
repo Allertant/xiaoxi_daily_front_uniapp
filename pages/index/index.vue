@@ -2,33 +2,16 @@
 	<view class="outter-wrapper">
 		<view class="container" v-if="userId">
 			<!-- 头部显示栏 -->
-			<view class="box-bar">
-				<view class="time-show-area">
-					{{timeStr}}
-				</view>
-				<view class="history-button">
-					<uni-icons color="green" type="wallet-filled" size="30" @click="gotoHistory"></uni-icons>
-				</view>
-				<view class="profile-button">
-					<uni-icons color="green" type="staff-filled" size="30" @click="jumpToLogin"></uni-icons>
-				</view>
-			</view>
+			<index-bar 
+			:gotoHistory='gotoHistory'
+			:jumpToLogin='jumpToLogin'
+			:timeStr='timeStr' />
 			<!-- 显示主体 -->
-			<view class="box-body">
-				<view class="box-body-list">
-					<view class="box-body-list-item" v-for="(item, index) in list" :key="index">
-						<view style="font-size: 20px;">
-							{{item.count}}
-						</view>
-						<view class="text">
-							{{item.beginTime}} - {{item.endTime}}
-						</view>
-						<view class="item-button">
-							<button class="btn" @click="beginTime(item.id)" :style="styles[item.code]" type="primary" :disabled="item.code != 1002">{{item.msg}}</button>
-						</view>
-					</view>
-				</view>
-			</view>
+			<index-body 
+			:list='list' 
+			:beginTime='beginTime'
+			:styles='styles' />
+			
 		</view>
 		<view v-else class="jump-to-login" @click="jumpToLogin">
 			<uni-icons type="staff-filled" size="60"></uni-icons>
@@ -92,8 +75,10 @@
 				}
 				cb && cb()
 			},
-			gotoHistory() {
-				console.log("history")
+			jumpToLogin() {
+				uni.navigateTo({
+					url: '/pages/login/login'
+				})
 			},
 			onPullDownRefresh() {
 				// reset data
@@ -103,11 +88,6 @@
 			getTimeStr() {
 				let date = new Date();
 				this.timeStr = date.getMonth()+1 + '月' + date.getDate() + '日'
-			},
-			jumpToLogin() {
-				uni.navigateTo({
-					url: '/pages/login/login'
-				})
 			},
 			gotoHistory() {
 				uni.navigateTo({
@@ -139,32 +119,8 @@
 		font-size: 14px;
 		line-height: 24px;
 	}
-	.box-bar {
-		display: flex;
-		justify-content: space-around;
-		.time-show-area {
-			font-size: 20px;
-			font-weight: bold;
-		}
-		margin-bottom: 20px;
-	}
-	.box-body {
-		.box-body-list {
-			.box-body-list-item {
-				border-radius: 20px;
-				display: flex;
-				justify-content: space-around;
-				align-items: center;
-				background-color: yellowgreen;
-				box-shadow: 4px 4px 3px forestgreen;
-				margin-bottom: 20px;
-				padding: 10px 0;
-				.text {
-					font-size: 20px;
-				}
-			}
-		}
-	}
+	
+	
 	.jump-to-login {
 		display: flex;
 		flex-direction: column;
@@ -175,7 +131,5 @@
 			padding-top: 30rpx;
 		}
 	}
-	.btn {
-		border-radius: 15px;
-	}
+	
 </style>
