@@ -7,6 +7,9 @@
 			<view class="history-button">
 				<uni-icons color="green" type="wallet-filled" size="30" @click="gotoHistory"></uni-icons>
 			</view>
+			<view class="enum-button">
+				<uni-icons color="green" type="plusempty" size="30" @click="gotoEnum"></uni-icons>
+			</view>
 			<view class="profile-button">
 				<uni-icons color="green" type="staff-filled" size="30" @click="jumpToLogin"></uni-icons>
 			</view>
@@ -27,6 +30,10 @@
 				required: true
 			},
 			jumpToLogin: {
+				type: Function,
+				required: true
+			},
+			gotoEnum: {
 				type: Function,
 				required: true
 			}

@@ -39,9 +39,25 @@
                     "path" : "history_detail/history_detail",
                     "style" :                                                                                    
 					{
-						"navigationBarTitleText": "",
+						"navigationBarTitleText": "历史详情",
 						"enablePullDownRefresh": false
 					}
+                },
+                {
+                	"path" : "plan/plan",
+                	"style" : 
+                	{
+                		"navigationBarTitleText" : "计划",
+                		"enablePullDownRefresh" : true
+                	}
+                },
+                {
+                	"path" : "plan_detail/plan_detail",
+                	"style" : 
+                	{
+                		"navigationBarTitleText" : "计划详情",
+                		"enablePullDownRefresh" : false
+                	}
                 }
             ]
 		}

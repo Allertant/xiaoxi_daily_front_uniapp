@@ -5,6 +5,7 @@
 			<index-bar 
 			:gotoHistory='gotoHistory'
 			:jumpToLogin='jumpToLogin'
+			:gotoEnum='gotoEnum'
 			:timeStr='timeStr' />
 			<!-- 显示主体 -->
 			<index-body 
@@ -92,6 +93,11 @@
 			gotoHistory() {
 				uni.navigateTo({
 					url: '/subpkg/history/history'
+				})
+			},
+			gotoEnum() {
+				uni.navigateTo({
+					url: '/subpkg/plan/plan'
 				})
 			}
 		},
