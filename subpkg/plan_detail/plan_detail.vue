@@ -58,19 +58,7 @@
 				// 计划信息
 				planObj: {
 					name: '默认计划_'+Date.now(),
-					details: [{
-						id: 122,
-						beginTime: '08:00',
-						endTime: "09:00"
-					},{
-						id: 133,
-						beginTime: '09:00',
-						endTime: '10:00'
-					},{
-						id: 135,
-						beginTime: '11:00',
-						endTime: '12:00'
-					}]
+					details: []
 				},
 				// 是否处于添加课程状态
 				isAdd: true,
@@ -92,6 +80,7 @@
 			};
 		},
 		methods: {
+			// 如果是更新操作，则从远程加载数据
 			async getPlanObj() {
 				const {data: res} = await uni.$http.get("/plan/" + this.planObj.id)
 				if(res.code == 1) {
@@ -164,7 +153,7 @@
 				// 整理数据
 				let index = 1
 				this.planObj.details.forEach(item => {
-					item.order = index++
+					item.orderNum = index++
 				})
 				// 提交数据
 				const {data: res} = await uni.$http.post("/plan/add", this.planObj)
@@ -190,10 +179,10 @@
 		},
 		onLoad(options) {
 			// 获取传递过来的isAdd信息
-			this.isAdd = options.isAdd || true
+			this.isAdd = JSON.parse(options.isAdd)
 			if(!this.isAdd) {
 				// 如果是查看信息，则将传过来的id绑定到对象身上
-				this.planObj.id = options.id
+				this.planObj.id = Number(options.id)
 			}
 		}
 	}
