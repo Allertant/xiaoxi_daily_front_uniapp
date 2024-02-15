@@ -48,7 +48,7 @@
 				item: {
 					id: Date.now(),
 					beginTime: "06:00",
-					endTime: "05:00",
+					endTime: "07:00",
 					order: null
 				},
 				timeRules: [{
@@ -73,13 +73,13 @@
 			},
 			changeBeginTime(e) {
 				// 校验数据合理性
-				let ans = this.checkTime(e.detail.value, this.item.endTime)
-				if(ans) this.item.beginTime = e.detail.value
+				// let ans = this.checkTime(e.detail.value, this.item.endTime)
+				this.item.beginTime = e.detail.value
 			},
 			changeEndTime(e) {
 				// 校验数据合理性
-				let ans = this.checkTime(this.item.beginTime, e.detail.value)
-				if(ans) this.item.endTime = e.detail.value
+				// let ans = this.checkTime(this.item.beginTime, e.detail.value)
+				this.item.endTime = e.detail.value
 				
 			},
 			

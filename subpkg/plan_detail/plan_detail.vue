@@ -13,7 +13,8 @@
 					
 					<view class="btn-box">
 						<button type="primary" size="mini" @click="add">新增计划项</button>
-						<button type="primary" size="mini" @click="submit('baseForm')">提交</button>
+						<button v-if="isAdd" type="primary" size="mini" @click="submit('baseForm', 'add')">添加</button>
+						<button v-else type="primary" size="mini" @click="submit('baseForm', 'update')">更新</button>
 					</view>
 					
 					<!-- 计划项目展示 -->
@@ -42,6 +43,7 @@
 					<uni-popup ref="popup" background-color="#fff">
 						<plan-detail-add :updatingDetail="updatingDetail" :updateItem="updateItem" :addItem="addItem" :isAdd="isAdd" />
 					</uni-popup>
+					<!-- <button type="primary" size="default" @click="backToPlanPage">返回</button> -->
 				</uni-forms>
 			</view>
 		</uni-section>
@@ -77,6 +79,7 @@
 				isAdd: true,
 				msgType: 'error',
 				messageText: '计划项目至少有一个',
+				isOnSubmitting: false
 			};
 		},
 		methods: {
@@ -130,45 +133,77 @@
 					return 
 				}
 			},
-			async submit(ref) {
-				// 校验信息
+			setOrder() {
+				// 1. 整理数据
+				let index = 1
+				this.planObj.details.forEach(item => {
+					item.orderNum = index++
+				})
+			},
+			async commitData(url) {
+				const {data: res} = await uni.$http.post(url, this.planObj)
+				return {code: res.code, data: res.data}
+			},
+			// 校验并提交数据
+			async submit(ref, type) {
+				// 如果正在向后台发送数据且没有返回结果，则直接返回方法
+				if(this.isOnSubmitting) {
+					uni.$showMsg("正在处理")
+				}
+				// 设置正在发送数据
+				this.isOnSubmitting = true
+				// 1. 校验信息
 				this.$refs[ref].validate().then(res => {
-					// console.log('success', res);
-					// uni.showToast({
-					// 	title: `校验通过`
-					// })
-					// console.log(this.dynamicFormData)
-					// 检查details数组是否为空
 					if(this.planObj.details.length == 0) {
 						// 弹窗警告
 						this.msgType = 'error'
 						this.messageText = `计划项至少有一个`
 						this.$refs.message.open()
-						return 
+						this.isChecked = false
+					}else {
+						// 校验成功
+						// 2. 设置排列顺序
+						this.setOrder()
+						
+						// 3. 提交数据
+						let url = '/plan/' + type
+						this.commitData(url).then(res => {
+							//console.log('res.code:', res.code)
+							if(res.code == 1 && this.isAdd) {
+								// 弹窗提示
+								this.msgType = 'success',
+								this.messageText = `添加成功`
+								this.$refs.message.open()
+							}else if(res.code == 1 && !this.isAdd) {
+								// 弹窗提示
+								this.msgType = 'success',
+								this.messageText = `更新成功`
+								this.$refs.message.open()
+							}else if(res.code == 0) {
+								// 弹窗提示
+								this.msgType = 'warn',
+								this.messageText = res.data
+								this.$refs.message.open()
+							}else {
+								// 弹窗警告
+								this.msgType = 'error',
+								this.messageText = `服务器错误`
+								this.$refs.message.open()
+							}
+							// 数据接收完毕，重置状态位
+							this.isOnSubmitting = false
+						})
 					}
 				}).catch(err => {
 					console.log('err', err);
-					return 
 				})
-				// 整理数据
-				let index = 1
-				this.planObj.details.forEach(item => {
-					item.orderNum = index++
-				})
-				// 提交数据
-				const {data: res} = await uni.$http.post("/plan/add", this.planObj)
-				if(res.code == 1) {
-					// 弹窗提示
-					this.msgType = 'success',
-					this.messageText = `添加成功`
-					this.$refs.message.open()
-				}else {
-					// 弹窗警告
-					this.msgType = 'error',
-					this.messageText = `服务器错误`
-					this.$refs.message.open()
-				}
 			},
+			// 返回到 Plan 页面
+			backToPlanPage() {
+				uni.navigateTo({
+					url: '/subpkg/plan/plan'
+				})
+			}
 		},
 		onShow() {
 			if(!this.isAdd) {
