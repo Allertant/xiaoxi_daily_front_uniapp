@@ -27,8 +27,13 @@
 		},
 		methods: {
 			async getHistoryList(cb) {
-				const {data: res} = await uni.$http.get("/record/history", {userId: this.userId})
+				const {data: res} = await uni.$http.get("/plan/history")
 				this.historyList = res.data
+				// 如果数组长度为0，则直接返回
+				if(this.historyList.length == 0) {
+					cb && cb()
+					return 
+				}
 				// 处理时间
 				this.historyList.forEach(item => {
 					let dateTimeStr = item.createTime
@@ -42,7 +47,6 @@
 					item.beginTime = item.beginTime.substring(0, item.beginTime.length-3)
 					item.endTime = item.endTime.substring(0, item.endTime.length-3)
 				}) 
-				if(this.historyList.length===0) return 
 				
 				// 重新根据时间组装数组
 				let lastDataStr = this.historyList[0].createTime_dateStr

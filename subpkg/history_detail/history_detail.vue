@@ -11,7 +11,7 @@
 		<view class="info-box">
 			<view class="info-item" v-for="item,index in info.arrangements" :key="index">
 				<view>
-					{{item.arrangement}}
+					{{item.orderNum}}
 				</view>
 				<view class="info-duration">
 					{{item.beginTime}}-{{item.endTime}}

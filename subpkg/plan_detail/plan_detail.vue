@@ -41,7 +41,7 @@
 					</view>
 					<!-- 计划项添加 —— 弹出层 -->
 					<uni-popup ref="popup" background-color="#fff">
-						<plan-detail-add :updatingDetail="updatingDetail" :updateItem="updateItem" :addItem="addItem" :isAdd="isAdd" />
+						<plan-detail-add :updatingDetail="updatingDetail" :updateItem="updateItem" :addItem="addItem" :isAdd="isAddForDetail" /> 
 					</uni-popup>
 					<!-- <button type="primary" size="default" @click="backToPlanPage">返回</button> -->
 				</uni-forms>
@@ -76,7 +76,9 @@
 				// 待修改的对象
 				updatingDetail: {},
 				// 是否为添加操作
-				isAdd: true,
+				isAdd: null,
+				// 弹出的更新框是否为更新
+				isAddForDetail: null,
 				msgType: 'error',
 				messageText: '计划项目至少有一个',
 				isOnSubmitting: false
@@ -103,13 +105,12 @@
 			},
 			add() {
 				this.updatingDetail = {}
-				this.isAdd = true
+				this.isAddForDetail = true
 				this.$refs.popup.open('center')
 			},
 			update(item) {
 				this.updatingDetail = item
-				this.isAdd = false
-				// console.log(this.updatingDetail)
+				this.isAddForDetail = false
 				this.$refs.popup.open('center')
 			},
 			del(id) {
@@ -182,7 +183,7 @@
 							}else if(res.code == 0) {
 								// 弹窗提示
 								this.msgType = 'warn',
-								this.messageText = res.data
+								this.messageText = res.msg
 								this.$refs.message.open()
 							}else {
 								// 弹窗警告

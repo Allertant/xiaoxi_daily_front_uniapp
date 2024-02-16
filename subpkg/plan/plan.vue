@@ -28,11 +28,12 @@
 				})
 			},
 			// 获取计划列表
-			async getPlanList() {
+			async getPlanList(cb) {
 				const {data: res} = await uni.$http.get('/plan/list')
 				if(res.code == 1) {
 					this.planList = res.data
 				}
+				cb && cb()
 			},
 			// 跳转到更新页面
 			checkItem(item) {
@@ -53,6 +54,10 @@
 		},
 		onShow() {
 			this.getPlanList()
+		},
+		onPullDownRefresh() {
+			this.planList = []
+			this.getPlanList(() => uni.stopPullDownRefresh())
 		}
 	}
 </script>

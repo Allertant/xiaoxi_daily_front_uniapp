@@ -53,26 +53,28 @@
 			}
 		},
 		methods: {
-			async beginTime(arrangement) {
-				const {data: res} = await uni.$http.get("/arrangement/add", {arrangement: arrangement});
-				// if(res.code === '1') {
+			async beginTime(planDetailId) {
+				const {data: res} = await uni.$http.get("/plan/begin", {planDetailId: planDetailId});
+				if(res.code === 1) {
 					uni.$showMsg("任务开始")
-				// }
+				}else if(res.code == 0) {
+					uni.$showMsg(res.msg)
+				}
 				// console.log(res)
 				// 涉及更新操作，需要重新获取数据
 				this.getList()
 			},
 			async getList(cb) {
 				if(this.userId) {
-					const {data: res} = await uni.$http.get("/arrangement/list");
-					console.log(res)
+					const {data: res} = await uni.$http.post("/plan/details");
+					if(res.code == 0) return uni.$showMsg('获取数据失败')
 					let count = 1
-					res.forEach(item => {
+					res.data.forEach(item => {
 						item.beginTime = item.beginTime.substring(0, item.beginTime.length-3)
 						item.endTime = item.endTime.substring(0, item.endTime.length-3)
 						item.count = count ++
 					})
-					this.list = res
+					this.list = res.data
 				}
 				cb && cb()
 			},
@@ -107,6 +109,7 @@
 		onShow() {
 			this.getList()
 			this.getTimeStr()
+			//uni.$http.post("/plan/details")
 		},
 		onLoad() {
 			console.log(this.userId)

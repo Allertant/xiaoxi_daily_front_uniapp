@@ -10,7 +10,8 @@
 			{
 			"path" : "pages/login/login",
 			"style" :{
-				"navigationStyle": "custom"
+				"navigationBarTitleText": "时间清单",
+				"enablePullDownRefresh": false
 				}
 			},
 			{
