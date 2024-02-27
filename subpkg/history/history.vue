@@ -37,15 +37,13 @@
 				// 处理时间
 				this.historyList.forEach(item => {
 					let dateTimeStr = item.createTime
-					let dateTimeArr = dateTimeStr.split('T')
+					let dateTimeArr = dateTimeStr.split(' ')
 					let dateStr = dateTimeArr[0]
 					let timeStr = dateTimeArr[1]
 					let dateArr = dateStr.split('-')
 					let timeArr = timeStr.split(':')
 					item.createTime_dateStr = dateArr[1]+'月'+dateArr[2]+'日'
 					item.createTime_timeStr = timeArr[0]+':'+timeArr[1]
-					item.beginTime = item.beginTime.substring(0, item.beginTime.length-3)
-					item.endTime = item.endTime.substring(0, item.endTime.length-3)
 				}) 
 				
 				// 重新根据时间组装数组

@@ -39,14 +39,27 @@
 							</view>
 						</view>
 					</view>
+					
+					<!-- 删除计划 -->
+					<view>
+						<button type="primary" class="remove-btn" @click="removePlan">删除计划</button>
+					</view>
+					
 					<!-- 计划项添加 —— 弹出层 -->
 					<uni-popup ref="popup" background-color="#fff">
 						<plan-detail-add :updatingDetail="updatingDetail" :updateItem="updateItem" :addItem="addItem" :isAdd="isAddForDetail" /> 
 					</uni-popup>
-					<!-- <button type="primary" size="default" @click="backToPlanPage">返回</button> -->
+					
+					<!-- 删除项目 —— 弹出层 -->
+					<uni-popup ref="removePopup" background-color="#fff">
+						<plan-deatil-remove :validatePlanName="validatePlanName" />
+					</uni-popup>
+					
+					
 				</uni-forms>
 			</view>
 		</uni-section>
+		
 		<!-- 弹窗信息 -->
 		<uni-popup ref="message" type="message">
 			<uni-popup-message :type="msgType" :message="messageText" :duration="2000"></uni-popup-message>
@@ -81,44 +94,47 @@
 				isAddForDetail: null,
 				msgType: 'error',
 				messageText: '计划项目至少有一个',
-				isOnSubmitting: false
+				isOnSubmitting: false,
 			};
 		},
 		methods: {
 			// 如果是更新操作，则从远程加载数据
 			async getPlanObj() {
 				const {data: res} = await uni.$http.get("/plan/" + this.planObj.id)
-				if(res.code == 1) {
-					this.planObj = res.data
-				}
+				this.planObj = res.data
 			},
+			// 添加项目——传入弹出层的方法
 			addItem(item) {
 				this.planObj.details.push(item)
 				this.$refs.popup.close()
-				// console.log(this.planObj.details)
 			},
+			// 更新项目——传入弹出层的方法
 			updateItem(item) {
 				let index = this.planObj.details.findIndex(v => v.id === item.id)
 				this.planObj.details[index] = item
 				// 关闭窗口
 				this.$refs.popup.close()
 			},
+			// 添加项目——操作弹出框
 			add() {
 				this.updatingDetail = {}
 				this.isAddForDetail = true
 				this.$refs.popup.open('center')
 			},
+			// 更新项目——操作弹出框
 			update(item) {
 				this.updatingDetail = item
 				this.isAddForDetail = false
 				this.$refs.popup.open('center')
 			},
+			// 删除项目——操作数组
 			del(id) {
 				// 找到对应的id位置
 				let index = this.planObj.details.findIndex(v => v.id === id)
 				// 删除该计划项
 				this.planObj.details.splice(index, 1)
 			},
+			// 调整顺序
 			changeItemPosition(id, direction) {
 				// 找到对应的id位置
 				let index = this.planObj.details.findIndex(v => v.id === id)
@@ -134,6 +150,7 @@
 					return 
 				}
 			},
+			// 提交数据前设置顺序
 			setOrder() {
 				// 1. 整理数据
 				let index = 1
@@ -141,6 +158,7 @@
 					item.orderNum = index++
 				})
 			},
+			// 根据 url 提交数据
 			async commitData(url) {
 				const {data: res} = await uni.$http.post(url, this.planObj)
 				return {code: res.code, data: res.data}
@@ -167,28 +185,18 @@
 						this.setOrder()
 						
 						// 3. 提交数据
-						let url = '/plan/' + type
+						let url = '/plan/' + type;
 						this.commitData(url).then(res => {
 							//console.log('res.code:', res.code)
-							if(res.code == 1 && this.isAdd) {
+							if(this.isAdd) {
 								// 弹窗提示
 								this.msgType = 'success',
 								this.messageText = `添加成功`
 								this.$refs.message.open()
-							}else if(res.code == 1 && !this.isAdd) {
+							}else if(!this.isAdd) {
 								// 弹窗提示
 								this.msgType = 'success',
 								this.messageText = `更新成功`
-								this.$refs.message.open()
-							}else if(res.code == 0) {
-								// 弹窗提示
-								this.msgType = 'warn',
-								this.messageText = res.msg
-								this.$refs.message.open()
-							}else {
-								// 弹窗警告
-								this.msgType = 'error',
-								this.messageText = `服务器错误`
 								this.$refs.message.open()
 							}
 							// 数据接收完毕，重置状态位
@@ -199,11 +207,22 @@
 					console.log('err', err);
 				})
 			},
-			// 返回到 Plan 页面
-			backToPlanPage() {
-				uni.navigateTo({
-					url: '/subpkg/plan/plan'
-				})
+			removePlan() {
+				this.$refs.removePopup.open('center')
+			},
+			async validatePlanName(confirmPlanName) {
+				// 名称一致
+				if(this.planObj.name !== confirmPlanName) {
+					// 弹窗提示
+					this.msgType = 'error',
+					this.messageText = `计划名输入错误`
+					this.$refs.message.open()
+				}else {
+					this.$refs.removePopup.close()
+					const {data: res} = await uni.$http.post("/plan/remove/" + this.planObj.id)
+					uni.$showMsg(res.msg)
+					uni.navigateBack()
+				}
 			}
 		},
 		onShow() {
@@ -263,5 +282,11 @@
 	justify-content: space-between;
 	align-items: center;
 }
-
+.remove-btn {
+	background-color: red;
+}
+.removePopup-box {
+	height: 80%;
+	padding: 10px;
+}
 </style>

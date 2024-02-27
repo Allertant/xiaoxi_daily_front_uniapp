@@ -6,12 +6,12 @@ import store from '@/store/store.js'
 import { mapMutations } from 'vuex'
 
 // 导入网络请求的包
-import { $http } from "@escook/request-miniprogram"
+import { $http } from "@/api/request.js"
 
 uni.$http = $http
 // 请求根路径
-$http.baseUrl = "http://www.shiyixi.icu/api2"
-// $http.baseUrl = "http://localhost:8081"
+// $http.baseUrl = "http://www.shiyixi.icu/api2"
+$http.baseUrl = "http://localhost:8081"
 // 请求开始之前做一些事情
 $http.beforeRequest = function (options) {
     options.header = {
@@ -28,21 +28,24 @@ uni.$showMsg = function(title = "数据请求失败", duration = 1500) {
 	})
 }
 
-$http.afterRequest = function (res) {	
-	if(res.data.msg == 'NOTLOGIN') {
-		uni.$showMsg("登录过期")
+$http.afterRequest = function (res) {
+	// 未登录状态
+	if(res.data.code === 40100) {
 		// 清空数据
 		uni.removeStorageSync('userName')
 		uni.removeStorageSync('userId')
 		uni.removeStorageSync('jwt')
 		// 修改状态值
 		uni.$store.commit('m_user/changeUserId',  "")
-			
+		// 展示信息
+		uni.$showMsg(res.data.description)
 		// 跳转到登录页面
 		uni.navigateTo({
 			url: '/subpkg/login/login'
 		})
-		
+	// 除了成功的情况外
+	}else if(res.data.code !== 0) {
+		uni.$showMsg(res.data.description)
 	}
 }
 

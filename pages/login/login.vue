@@ -1,25 +1,35 @@
 <template>
 	<view class='login-container'>
-		
-		<!-- 登录注册选择器 -->
-		<view class='login-or-register-selector'>
-			<view @click='changeSelect(1)' :class="{'selector-on': select==1, 'selector-default': select==2}">登录</view>
-			<view @click='changeSelect(2)' :class="{'selector-on': select==2, 'selector-default': select==1}">注册</view>
-		</view>
-		
 		<!-- 登录后的框 -->
-		<view v-if='userId'>
-			<view class="user-text">当前用户：{{userName}}</view>
-			<button type='primary' @click='logout'>退出登录</button>
+		<view v-if='userData.username' class="user-container">
+			<view class="user-info">
+				<uni-card>
+					<view class="user-name-show">
+						<view class="user-text">当前用户：{{userData.username}}</view>
+						<uni-icons @click="changeIsEdit" size="30" type="compose"></uni-icons>
+					</view>
+					<view v-if="isEdit" class="user-name-edit">
+						<uni-easyinput type="text" v-model="username" placeholder="请输入" />
+						<button @click="updateUserInfo" type="primary">修改</button>
+					</view>
+				</uni-card>
+			</view>
+			<view class="user-logout">
+				<button type='primary' @click='logout'>退出登录</button>
+			</view>
 		</view>
 		
 		<view v-else class='login-or-register'>
-			
+			<!-- 登录注册选择器 -->
+			<view class='login-or-register-selector'>
+				<view @click='changeSelect(1)' :class="{'selector-on': select==1, 'selector-default': select==2}">登录</view>
+				<view @click='changeSelect(2)' :class="{'selector-on': select==2, 'selector-default': select==1}">注册</view>
+			</view>
 			<!-- 登录框 -->
 			<view class="login-box" v-if='select==1'>
 				<my-login :vcode="vcode"
 				:login='login'
-				:defaultData='defaultData'
+				:defaultData='localeLoginData'
 				:getCodePic='getCodePic' />
 			</view>
 			
@@ -31,9 +41,6 @@
 			</view>
 			
 		</view>
-		
-		
-		
 	</view>
 </template>
 
@@ -54,17 +61,19 @@
 				          name: "注册",
 				        }
 				      ],
-				defaultData: {
+				localeLoginData: {
 					phoneOrUsername: '',
 					password: ''
-				}
+				},
+				isEdit: false,
+				username: ""
 			};
 		},
 		computed: {
-			...mapState('m_user', ['userId', 'userName'])
+			...mapState('m_user', ['userData'])
 		},
 		methods: {
-			...mapMutations("m_user", ['changeUserName', 'changeUserId', 'removeUser', 'changeJWT']),
+			...mapMutations("m_user", ['changeUserData']),
 			async login(form) {
 				if(!form.phoneOrUsername) return uni.$showMsg('请输入用户名或手机号')
 				if(!form.password) return uni.$showMsg('请输入密码')
@@ -74,17 +83,13 @@
 				var reg_tel = /^(13[0-9]|14[01456879]|15[0-35-9]|16[2567]|17[0-8]|18[0-9]|19[0-35-9])\d{8}$/;
 				
 				// 准备登录数据dto
-				let loginData = {}
-				loginData.password = form.password
-				loginData.vcode = form.vcode
-				if(reg_tel.test(form.phoneOrUsername)) {
-					// 是手机号
-					loginData.phone = form.phoneOrUsername
-					loginData.isPhone = true
-				}else {
-					// 是用户名
-					loginData.username = form.phoneOrUsername
-					loginData.isPhone = false
+				let isPhone = reg_tel.test(form.phoneOrUsername)
+				let loginData = {
+					password: form.password,
+					vcode: form.vcode,
+					isPhone: isPhone,
+					phone: isPhone ? form.phoneOrUsername : "",
+					username: !isPhone ? form.phoneOrUsername : ""
 				}
 				
 				// 发送请求
@@ -94,9 +99,8 @@
 				uni.$showMsg(res.msg)
 				
 				// 注册成功后，保存相关信息
-				if(res.code === 1) {
-					this.saveInfoToLocale(res, loginData, loginData.isPhone)
-				}
+				this.saveInfoToLocale(res.data, loginData, loginData.isPhone)
+				
 				
 			},
 			async register(form) {
@@ -116,30 +120,27 @@
 				uni.$showMsg(res.msg)
 				
 				// 登录成功后，保存信息
-				if(res.code === 1) {
-					this.saveInfoToLocale(res, form, true)
-				}
-				
+				this.saveInfoToLocale(res.data, form, true)
 			},
-			saveInfoToLocale(res, form, isPhone) {
-				// 保存用户id、用户姓名和jwt字符串
-				this.changeUserId(res.userId)
-				this.changeUserName(res.userName)
-				this.changeJWT(res.jwt)
+			saveInfoToLocale(userData, form, isPhone) {
+				// 保存用户信息
+				this.changeUserData(userData);
 				
 				// 本地存储用户名和密码
-				if(isPhone) {
-					uni.setStorageSync("phoneOrUsername", form.phone)
-				}else {
-					uni.setStorageSync("phoneOrUsername", form.username)
+				let localUserLoginInfo = {
+					phoneOrUsername: isPhone ? form.phone : form.username,
+					password: form.password
 				}
-				uni.setStorageSync("password", form.password)
+				uni.setStorageSync("localUserLoginInfo", localUserLoginInfo);
 				
 				// 跳转到主页
-				this.gotoIndex()
+				this.gotoIndex();
 			},
 			logout() {
-				this.removeUser()
+				this.changeUserData({});
+				// 重新触发数据更新
+				this.localeLoginData = uni.getStorageSync("localUserLoginInfo") || {};
+				this.getCodePic();
 			},
 			changeSelect(arg) {
 				// console.log('changeSelect')
@@ -148,60 +149,99 @@
 			},
 			async getCodePic() {
 				const {data: res} = await uni.$http.get('/common/vcode')
-				if(res.code == 1) {
-					this.vcode = res.data
-				}
+				this.vcode = res.data	
 			},
 			gotoIndex() {
 				uni.navigateTo({
 					url: '/pages/index/index'
 				})
+			},
+			changeIsEdit() {
+				this.isEdit = !this.isEdit
+			},
+			async updateUserInfo() {
+				if(!this.username) return uni.$showMsg("请输入要修改的用户名")
+				const {data: res} = await uni.$http.post("/user/update", {
+					username: this.username
+				})
+				uni.$showMsg(res.msg)
+				// 修改本地数据
+				this.changeUserData({...this.userData, username: this.username})
+				this.changeIsEdit() 
 			}
 		},
-		onShow() {
-			// 加载本地的密码数据
-			this.defaultData.phoneOrUsername = uni.getStorageSync("phoneOrUsername") || ""
-			this.defaultData.password = uni.getStorageSync("password") || ""
-			// 加载验证码图片数据
-			this.getCodePic()
+		onLoad() {
+			console.log('onLoad')
+			// 用户未登录
+			if(!this.userData.username) {
+				// 加载本地的密码数据
+				this.localeLoginData = uni.getStorageSync("localUserLoginInfo") || {};
+				// 加载验证码图片数据
+				this.getCodePic();
+			}else {
+				// 用于已登录
+				this.username = this.userData.username
+			}
+			
 		}
 	}
 </script>
 
 <style lang="scss">
-	// 选择器开关相关样式
-	.login-or-register-selector {
-		display: flex;
-		justify-content: space-around;
-		.selector-on {
-			background-color: rgb(0,122,255);
-			color: white;
-			padding: 20rpx;
-			border-radius: 10px;
-		}
-		.selector-default {
-			background-color: white;
-			padding: 20rpx;
-			border-radius: 10px;
-		}
-	}
-	// 外部容器的样式
-	.login-container {
+	.login-or-register {
 		position: absolute;
 		width: 70%;
 		top: 10%;
 		left: 10%;
 		padding: 30rpx;
-		// border: 1px solid black;
+		// 选择器开关相关样式
+		.login-or-register-selector {
+			display: flex;
+			justify-content: space-around;
+			.selector-on {
+				background-color: rgb(0,122,255);
+				color: white;
+				padding: 20rpx;
+				border-radius: 10px;
+			}
+			.selector-default {
+				background-color: white;
+				padding: 20rpx;
+				border-radius: 10px;
+			}
+		}
+		// 注册盒子和登录盒子的相关样式
+		.login-box,.register-box {
+			padding: 0 10rpx;
+		}
+		// 登录成功后的展示样式
+		.user-text {
+			font-size: 40rpx;
+			margin-bottom: 30rpx;
+		}
 	}
-	// 注册盒子和登录盒子的相关样式
-	.login-box,.register-box {
-		padding: 0 10rpx;
-	}
-	// 登录成功后的展示样式
-	.user-text {
-		font-size: 40rpx;
-		margin-bottom: 30rpx;
+	.user-container {
+		
+		.user-info {
+			.user-name-show {
+				display: flex;
+				justify-content: space-between;
+				padding-bottom: 10px;
+			}
+			.user-name-edit {
+				display: flex;
+				justify-content: space-between;
+				button {
+					display: flex;
+					align-items: center;
+					height: 35px;
+					margin-left: 10px;
+				}
+			}
+		}
+		.user-logout {
+			
+		}
 	}
 	
 </style>

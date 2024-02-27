@@ -1,6 +1,6 @@
 <template>
 	<view class="outter-wrapper">
-		<view class="container" v-if="userId">
+		<view class="container" v-if="userData.userId">
 			<!-- 头部显示栏 -->
 			<index-bar 
 			:gotoHistory='gotoHistory'
@@ -65,13 +65,10 @@
 				this.getList()
 			},
 			async getList(cb) {
-				if(this.userId) {
+				if(this.userData.userId) {
 					const {data: res} = await uni.$http.post("/plan/details");
-					if(res.code == 0) return uni.$showMsg('获取数据失败')
 					let count = 1
 					res.data.forEach(item => {
-						item.beginTime = item.beginTime.substring(0, item.beginTime.length-3)
-						item.endTime = item.endTime.substring(0, item.endTime.length-3)
 						item.count = count ++
 					})
 					this.list = res.data
@@ -104,18 +101,14 @@
 			}
 		},
 		computed: {
-			...mapState('m_user', ['userId'])
+			...mapState('m_user', ['userData'])
 		},
 		onShow() {
 			this.getList()
 			this.getTimeStr()
-			//uni.$http.post("/plan/details")
 		},
 		onLoad() {
-			console.log(this.userId)
-			console.log("hello")
-			if(this.userId == "") {
-				console.log(this.userId)
+			if(!this.userData.username) {
 				this.jumpToLogin()
 			}
 		}

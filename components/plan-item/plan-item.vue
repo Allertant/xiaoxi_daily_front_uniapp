@@ -38,7 +38,7 @@
 		},
 		computed: {
 			planCreateTime() {
-				return this.plan.createTime.split("T")[0]
+				return this.plan.createTime.split(" ")[0]
 			}
 		},
 	}

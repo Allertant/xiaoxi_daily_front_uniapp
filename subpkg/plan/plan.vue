@@ -30,9 +30,8 @@
 			// 获取计划列表
 			async getPlanList(cb) {
 				const {data: res} = await uni.$http.get('/plan/list')
-				if(res.code == 1) {
-					this.planList = res.data
-				}
+				this.planList = res.data
+				
 				cb && cb()
 			},
 			// 跳转到更新页面
@@ -43,13 +42,9 @@
 			},
 			async setPlanOn(id) {
 				const {data: res} = await uni.$http.post("/plan/seton/" + id)
-				if(res.code == 1) {
-					uni.$showMsg('使用成功')
-					// 涉及更新操作，重新获取数据
-					this.getPlanList()
-				}else {
-					uni.$showMsg('服务器错误')
-				}
+				uni.$showMsg(res.msg)
+				// 涉及更新操作，重新获取数据
+				this.getPlanList()
 			}
 		},
 		onShow() {

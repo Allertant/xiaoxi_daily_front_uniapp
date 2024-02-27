@@ -47,11 +47,8 @@
 			};
 		},
 		mounted() {
-			// console.log('defaultData',this.defaultData)
-			this.baseFormData.phoneOrUsername = this.defaultData.phoneOrUsername
-			this.baseFormData.password = this.defaultData.password
-		}
-
+			this.baseFormData = this.defaultData
+		},
 	}
 </script>
 
