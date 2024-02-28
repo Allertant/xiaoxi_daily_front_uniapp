@@ -22,17 +22,17 @@
 
 #### 五、效果展示
 
-![1709100394163](C:\Users\33827\AppData\Roaming\Typora\typora-user-images\1709100394163.png)
+![1709100394163](readme-images\1709100394163.png)
 
-![1709100416271](C:\Users\33827\AppData\Roaming\Typora\typora-user-images\1709100416271.png)
+![1709100416271](readme-images\1709100416271.png)
 
 ****
 
-![1709100449561](C:\Users\33827\AppData\Roaming\Typora\typora-user-images\1709100449561.png)
+![1709100449561](readme-images\1709100449561.png)
 
-![1709100468762](C:\Users\33827\AppData\Roaming\Typora\typora-user-images\1709100468762.png)
+![1709100468762](readme-images\1709100468762.png)
 
-![1709100486492](C:\Users\33827\AppData\Roaming\Typora\typora-user-images\1709100486492.png)
+![1709100486492](readme-images\1709100486492.png)
 
 ### <a href="https://github.com/Allertant/xiaoxi_daily_backend_java">访问小兮打卡后台</a>
 
