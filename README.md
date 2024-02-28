@@ -22,17 +22,15 @@
 
 #### 五、效果展示
 
-![1709100394163](readme-images\1709100394163.png)
+![1709100394163](https://github.com/Allertant/xiaoxi_daily_front_uniapp/blob/master/readme-images/1709100394163.png?raw=true)
 
-![1709100416271](readme-images\1709100416271.png)
+![1709100416271](https://github.com/Allertant/xiaoxi_daily_front_uniapp/blob/master/readme-images/1709100416271.png?raw=true)
 
-****
+![1709100449561](https://github.com/Allertant/xiaoxi_daily_front_uniapp/blob/master/readme-images/1709100449561.png?raw=true)
 
-![1709100449561](readme-images\1709100449561.png)
+![1709100468762](https://github.com/Allertant/xiaoxi_daily_front_uniapp/blob/master/readme-images/1709100468762.png?raw=true)
 
-![1709100468762](readme-images\1709100468762.png)
-
-![1709100486492](readme-images\1709100486492.png)
+![1709100486492](https://github.com/Allertant/xiaoxi_daily_front_uniapp/blob/master/readme-images/1709100486492.png?raw=true)
 
 ### <a href="https://github.com/Allertant/xiaoxi_daily_backend_java">访问小兮打卡后台</a>
 
