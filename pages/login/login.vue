@@ -99,8 +99,7 @@
 				uni.$showMsg(res.msg)
 				
 				// 注册成功后，保存相关信息
-				this.saveInfoToLocale(res.data, loginData, loginData.isPhone)
-				
+				await this.saveInfoToLocale(res.data, loginData, loginData.isPhone)
 				
 			},
 			async register(form) {
@@ -120,13 +119,18 @@
 				uni.$showMsg(res.msg)
 				
 				// 登录成功后，保存信息
-				this.saveInfoToLocale(res.data, form, true)
+				await this.saveInfoToLocale(res.data, form, true)
 			},
-			saveInfoToLocale(userData, form, isPhone) {
-				// 保存用户信息
-				this.changeUserData(userData);
+			async saveInfoToLocale(resData, form, isPhone) {
+				console.log(resData, form, isPhone);
+				// 1. 保存 jwt 信息
+				uni.setStorageSync("jwt", resData.accessToken);
 				
-				// 本地存储用户名和密码
+				// 2. 获取并保存用户信息到本地
+				const {data: res} = await uni.$http.get('/user/info')
+				this.changeUserData(res.data);
+				
+				// 3.存储用户名和密码到本地
 				let localUserLoginInfo = {
 					phoneOrUsername: isPhone ? form.phone : form.username,
 					password: form.password

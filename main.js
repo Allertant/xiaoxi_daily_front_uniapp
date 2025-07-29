@@ -10,14 +10,15 @@ import { $http } from "@/api/request.js"
 
 uni.$http = $http
 // 请求根路径
-// $http.baseUrl = "https://xiaoxi-plan.shiyixi.icu"
-$http.baseUrl = "http://localhost:8080"
+// $http.baseUrl = "http://xiaoxi-plan.shiyixi.icu"
+$http.baseUrl = "http://localhost:8090"
 // 请求开始之前做一些事情
-// $http.beforeRequest = function (options) {
-//     options.header = {
-//       'jwt': uni.getStorageSync('jwt') || ""
-//     }
-// }
+$http.beforeRequest = function (options) {
+	console.log(uni.getStorageSync("jwt"));
+    options.header = {
+      'Authorization': "Bearer " + uni.getStorageSync('jwt') || ""
+    }
+}
 
 // 封装弹窗的方法
 uni.$showMsg = function(title = "数据请求失败", duration = 1500) {
@@ -34,7 +35,7 @@ $http.afterRequest = function (res) {
 		// 清空数据
 		uni.removeStorageSync('userName')
 		uni.removeStorageSync('userId')
-		// uni.removeStorageSync('jwt')
+		uni.removeStorageSync('jwt')
 		// 修改状态值
 		uni.$store.commit('m_user/changeUserId',  "")
 		// 展示信息
