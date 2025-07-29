@@ -10,8 +10,8 @@ import { $http } from "@/api/request.js"
 
 uni.$http = $http
 // 请求根路径
-// $http.baseUrl = "http://www.shiyixi.icu/api2"
-$http.baseUrl = "http://localhost:8081"
+// $http.baseUrl = "https://xiaoxi-plan.shiyixi.icu"
+$http.baseUrl = "http://localhost:8080"
 // 请求开始之前做一些事情
 $http.beforeRequest = function (options) {
     options.header = {
