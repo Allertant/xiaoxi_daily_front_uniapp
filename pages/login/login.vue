@@ -96,7 +96,7 @@
 				const {data: res} = await uni.$http.post('/user/login', 
 					loginData,
 				)
-				uni.$showMsg(res.msg)
+				uni.$showMsg(res)
 				
 				// 注册成功后，保存相关信息
 				await this.saveInfoToLocale(res.data, loginData, loginData.isPhone)

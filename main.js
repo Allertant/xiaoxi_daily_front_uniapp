@@ -10,8 +10,8 @@ import { $http } from "@/api/request.js"
 
 uni.$http = $http
 // 请求根路径
-// $http.baseUrl = "http://xiaoxi-plan.shiyixi.icu"
-$http.baseUrl = "http://localhost:8090"
+$http.baseUrl = "http://xiaoxi-plan.shiyixi.icu"
+// $http.baseUrl = "http://localhost:8090"
 // 请求开始之前做一些事情
 $http.beforeRequest = function (options) {
 	console.log(uni.getStorageSync("jwt"));
@@ -32,6 +32,7 @@ uni.$showMsg = function(title = "数据请求失败", duration = 1500) {
 $http.afterRequest = function (res) {
 	// 未登录状态
 	if(res.data.code === 40100) {
+		console.log("清空数据")
 		// 清空数据
 		uni.removeStorageSync('userName')
 		uni.removeStorageSync('userId')

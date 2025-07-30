@@ -86,11 +86,17 @@
     /* 快应用特有相关 */
     "mp-weixin" : {
         /* 小程序特有相关 */
-        "appid" : "",
+        "appid" : "wxd494acba38b0953d",
         "setting" : {
-            "urlCheck" : false
+            "urlCheck" : false,
+            "es6" : true
         },
         "usingComponents" : true
     },
-    "vueVersion" : "2"
+    "vueVersion" : "2",
+    "h5" : {
+        "devServer" : {
+            "https" : false
+        }
+    }
 }

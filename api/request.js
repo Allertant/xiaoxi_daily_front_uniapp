@@ -5,7 +5,7 @@ class Request {
     // 请求的 url 地址
     this.url = options.url || ''
     // 请求方式
-    this.method = 'GET'
+    // this.method = 'GET'
     // 请求的参数对象
     this.data = null
     // header 请求头

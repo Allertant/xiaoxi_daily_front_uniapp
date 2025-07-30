@@ -13,14 +13,6 @@
 				"navigationBarTitleText": "时间清单",
 				"enablePullDownRefresh": false
 				}
-			},
-			{
-				"path" : "components/my-register/my-register",
-				"style" : 
-				{
-					"navigationBarTitleText" : "",
-					"enablePullDownRefresh" : false
-				}
 			}
     ],
 	"subPackages": [
